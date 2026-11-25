@@ -1,6 +1,7 @@
 import { planificar } from './plan.mjs';
 import { validarPlan } from './plan-ui.mjs';
 import { codificar } from './progreso.mjs';
+import { crearIcs } from './ics.mjs';
 
 const root = document.getElementById('planificador'), config = JSON.parse(root.dataset.config);
 const $ = id => document.getElementById(id);
@@ -109,4 +110,12 @@ $('enlace-plan').addEventListener('click', async () => {
   catch { estado.textContent = 'No se pudo copiar el enlace en este navegador.'; }
 });
 $('imprimir-plan').addEventListener('click', () => { generar(); print(); });
+$('calendario-plan').addEventListener('click', () => {
+  const nombre = comunidad.selectedOptions[0]?.textContent || '';
+  const ics = crearIcs({ examen: fecha.value, hoy: hoy(), titulo: `prueba de acceso a grado superior${nombre ? ` (${nombre})` : ''}` });
+  if (!ics) { estado.textContent = 'Pon una fecha de examen de hoy en adelante para crear el calendario.'; return; }
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })), download: 'examen-grado-superior.ics' });
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  estado.textContent = 'Calendario descargado: ábrelo para añadir el examen y dos simulacros (a 14 y 7 días) a tu calendario. Es la fecha que has puesto tú: cámbiala si sale la convocatoria.';
+});
 restaurar();

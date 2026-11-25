@@ -5,6 +5,7 @@ import { CLAVE, leerEstado, registrar, anotarNota, pendientes, notasDe, enRepaso
 import { exportar, fusionar, codificar as codificarProgreso, leer as leerProgreso, leerReto } from './progreso.mjs';
 import { azar } from './simulacro.mjs';
 import { CLAVE_ERRORES, TIPOS, sanearErrores, registrarError, resumenErrores } from './error-tipo.mjs';
+import { leer as leerA11y, conTiempoExtra, minutosConExtra } from './accesibilidad.mjs';
 import { anotarCopia, necesitaAvisoCopia, pedirPersistencia, yaPersistente, TEXTO_AVISO } from './copia.mjs';
 
 const raiz = document.getElementById('simulacro');
@@ -18,6 +19,8 @@ const avisos = $('#avisos');
 const examen = $('#examen');
 const lista = $('#preguntas');
 const reloj = $('#reloj');
+const notaExtra = Object.assign(document.createElement('span'), { className: 'mini nota-extra', hidden: true });
+if (reloj) reloj.closest('.reloj-caja').append(notaExtra);
 const indicadorRitmo = $('.ritmo') ?? el('span', { clase: 'ritmo' });
 if (!indicadorRitmo.isConnected) reloj.closest('.reloj-caja').append(indicadorRitmo);
 const anuncio = $('#anuncio');
@@ -108,7 +111,8 @@ function pintarPapel(simulacro, a, semilla) {
   const tituloMateria = selMateria?.selectedOptions[0]?.textContent ?? banco.nombre;
   const cabecera = el('header', { clase: 'cabecera-papel' });
   cabecera.append(el('h1', { texto: tituloMateria }));
-  cabecera.append(el('p', { texto: `${simulacro.preguntas.length} preguntas · ${a.minutos} minutos` }));
+  const extraPapel = minutosConExtra(a.minutos, leerA11y());
+  cabecera.append(el('p', { texto: `${simulacro.preguntas.length} preguntas · ${extraPapel} minutos${extraPapel !== a.minutos ? ' (con tu tiempo extra)' : ''}` }));
   cabecera.append(el('p', { texto: textoPenalizacion(a.penalizacion) }));
   cabecera.append(el('p', { texto: 'Nombre: ____________________  Fecha: ____________________' }));
   cabecera.append(el('p', { clase: 'codigo-papel', texto: `Código del simulacro: ${semilla}` }));
@@ -525,6 +529,8 @@ function iniciar(preguntas = null, a = ajustes(), modo = 'simulacro') {
   const semilla = preguntas ? undefined : (semillaActual ?? crypto.getRandomValues(new Uint32Array(1))[0] >>> 0);
   semillaActual = undefined;
   actual = preguntas ? { materia: banco.id, preguntas: preguntas.map(p => ({ ...p })), inicio: Date.now(), fin: Date.now() + a.minutos * 60_000 } : { ...crearSimulacro(banco, { ...a, rnd: azar(semilla) }), semilla };
+  actual = conTiempoExtra(actual, leerA11y());
+  notaExtra.hidden = !actual.tiempoExtra; notaExtra.textContent = actual.tiempoExtra ? ` Incluye +${actual.tiempoExtra} % de tiempo extra.` : '';
   if (preguntas) retoPendiente = null;
   penalActual = a.penalizacion;
   modoActual = modo;

@@ -245,3 +245,16 @@ footer a, .solo-enlace > a { display: inline-block; padding-block: .75rem; }
 nav a, .marca { display: inline-flex; align-items: center; min-height: 44px; }
 main li > a { display: inline-block; padding-block: .7rem; }
 :where(label:has(> input[type="checkbox"], > input[type="radio"])) { min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; }
+/* Accesibilidad (site/accesibilidad.mjs): lectura fácil y alto contraste claro */
+.a11y-panel { margin: .8rem 0; }
+.a11y-panel summary { cursor: pointer; font-weight: 700; color: var(--tinta); min-height: 44px; display: flex; align-items: center; }
+.a11y-panel select { font: inherit; margin-left: .4rem; min-height: 44px; }
+.escuchar { margin-top: .2rem; }
+.nota-extra { margin-left: .5rem; }
+.a11y-legible body { font-family: Verdana, Tahoma, sans-serif; letter-spacing: .04em; word-spacing: .12em; line-height: 1.8; }
+.a11y-legible p, .a11y-legible li { max-width: 70ch; text-align: left; }
+.a11y-contraste { --tinta: #000; --suave: #111; --azul: #002a7a; --fondo: #fff; --linea: #000; --verde: #0a4a24; --rojo: #750000; }
+.a11y-contraste a { text-decoration: underline; text-decoration-thickness: 2px; }
+.a11y-contraste .marcar, .a11y-contraste .tachar, .a11y-contraste .redactar textarea, .a11y-contraste input, .a11y-contraste select { border: 2px solid #000; color: #000; }
+.a11y-contraste button.sec { border-width: 2px; }
+.a11y-contraste .mini, .a11y-contraste .lead, .a11y-contraste .pie { color: #000; }
