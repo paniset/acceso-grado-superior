@@ -1,9 +1,10 @@
 // Interfaz del simulacro cronometrado. Todo ocurre en el navegador: no se envía nada. Los fallos y las notas
 // se guardan solo en el localStorage de este navegador para el repaso entre días, y se pueden borrar.
-import { crearSimulacro, corregir, porTemas, falladas, temasFlojos, codificarFalladas, leerFalladas, segundosRestantes, formatoTiempo, validarAjustes, unirBancos, textoPenalizacion, estadosMapa, resumenMapa, hojaRespuestas, ritmo, tiempoUsado, LIMITES } from './simulacro.mjs';
+import { crearSimulacro, corregir, porTemas, nivelPorTema, testNivel, falladas, temasFlojos, codificarFalladas, leerFalladas, segundosRestantes, formatoTiempo, validarAjustes, unirBancos, textoPenalizacion, estadosMapa, resumenMapa, hojaRespuestas, ritmo, tiempoUsado, LIMITES } from './simulacro.mjs';
 import { CLAVE, leerEstado, registrar, anotarNota, pendientes, notasDe, enRepaso, hoyISO, estadoVacio, veredicto } from './repaso.mjs';
 import { exportar, fusionar, codificar as codificarProgreso, leer as leerProgreso, leerReto } from './progreso.mjs';
 import { azar } from './simulacro.mjs';
+import { CLAVE_ERRORES, TIPOS, sanearErrores, registrarError, resumenErrores } from './error-tipo.mjs';
 
 const raiz = document.getElementById('simulacro');
 const $ = sel => raiz.querySelector(sel);
@@ -42,6 +43,7 @@ let retoPendiente = null;
 let marcadas = new Set();
 let mapa = null;
 let resumenMapaEl = null;
+let modoActual = 'simulacro';
 
 function aplicarProgreso(paquete) {
   if (!paquete || paquete.web !== 'acceso-grado-superior' || paquete.version !== 1) return false;
@@ -265,7 +267,7 @@ function pintarRepaso() {
   compartir.addEventListener('click', async () => { const u = new URL(location.href); u.hash = `progreso=${codificarProgreso(exportar(localStorage))}`; try { await navigator.clipboard.writeText(u.href); anuncio.textContent = 'Enlace copiado.'; } catch { anuncio.textContent = u.href; } });
   cajaRepaso.append(el('p', {}, descargar, cargar, compartir, archivo));
   const borrar = el('button', { type: 'button', clase: 'sec', texto: 'Borrar mi progreso de este navegador' });
-  borrar.addEventListener('click', () => { try { localStorage.removeItem(CLAVE); } catch { /* nada */ } pintarRepaso(); anuncio.textContent = 'Progreso borrado.'; });
+  borrar.addEventListener('click', () => { try { localStorage.removeItem(CLAVE); localStorage.removeItem(CLAVE_ERRORES); } catch { /* nada */ } pintarRepaso(); anuncio.textContent = 'Progreso borrado.'; });
   cajaRepaso.append(el('p', { clase: 'mini' }, 'Se guarda solo en este navegador; no se envía a ningún sitio. ', borrar));
 }
 
@@ -385,7 +387,7 @@ function entregar(porTiempo = false) {
   if (PUEDE_GUARDAR) {
     const hoy = hoyISO();
     let e = registrar(cargarEstado(), actual.preguntas.map((p, i) => ({ id: p.id, estado: res.detalle[i].estado })), hoy);
-    e = anotarNota(e, { materia: banco.id, nota: res.nota, total: res.total, fecha: hoy });
+    if (modoActual !== 'nivel') e = anotarNota(e, { materia: banco.id, nota: res.nota, total: res.total, fecha: hoy });
     guardarEstado(e);
   }
   pintarResultado(res, porTiempo, aMano, usado);
@@ -397,7 +399,8 @@ function pintarResultado(res, porTiempo, aMano = false, usado) {
   examen.hidden = true;
   resultado.hidden = false;
   resultado.replaceChildren();
-  const titulo = el('h2', { tabindex: '-1', texto: `Tu nota: ${res.nota.toLocaleString('es-ES')} sobre 10` });
+  const niveles = modoActual === 'nivel' ? nivelPorTema(res) : [];
+  const titulo = el('h2', { tabindex: '-1', texto: modoActual === 'nivel' ? `Tu nivel: ${res.nota.toLocaleString('es-ES')} sobre 10` : `Tu nota: ${res.nota.toLocaleString('es-ES')} sobre 10` });
   resultado.append(titulo);
   if (porTiempo) resultado.append(el('p', { clase: 'aviso', texto: aMano
     ? 'Se acabó el tiempo antes de entregar: solo cuentan las respuestas marcadas antes del final.'
@@ -407,7 +410,13 @@ function pintarResultado(res, porTiempo, aMano = false, usado) {
   const segundosUsados = usado % 60;
   const media = res.total ? Math.round(usado / res.total) : 0;
   resultado.append(el('p', { texto: `Tiempo usado: ${minutosUsados}m ${segundosUsados}s de ${Math.floor((actual.fin - actual.inicio) / 60000)} min (${media} s por pregunta de media).` }));
-  if (PUEDE_GUARDAR) resultado.append(cajaVeredicto(cargarEstado()));
+  if (modoActual !== 'nivel' && PUEDE_GUARDAR) resultado.append(cajaVeredicto(cargarEstado()));
+  if (modoActual === 'nivel') {
+    const listaNivel = el('ul', { clase: 'niveles-tema' });
+    const textosNivel = { empieza: 'Empieza por aquí', medias: 'A medias', domina: 'Lo dominas' };
+    for (const t of niveles) listaNivel.append(el('li', { clase: `nivel-${t.nivel}`, texto: `${textoTema(t.tema)}: ${textosNivel[t.nivel]} (${t.aciertos} de ${t.total})` }));
+    resultado.append(el('h3', { texto: 'Tu nivel por tema (empieza por arriba)' }), listaNivel);
+  }
   const tabla = el('ul', { clase: 'por-temas' });
   for (const t of porTemas(res)) tabla.append(el('li', { texto: `${textoTema(t.tema)}: ${t.aciertos} de ${t.total}` }));
   resultado.append(el('h3', { texto: 'Por temas (de peor a mejor)' }), tabla);
@@ -429,6 +438,33 @@ function pintarResultado(res, porTiempo, aMano = false, usado) {
     ol.append(li);
   });
   resultado.append(ol);
+  const erroresGuardados = () => { try { return sanearErrores(JSON.parse(localStorage.getItem(CLAVE_ERRORES) || 'null')); } catch { return sanearErrores(null); } };
+  const resumenEl = el('p', { 'aria-live': 'polite' });
+  const pintarResumenErrores = () => {
+    const r = resumenErrores(erroresGuardados());
+    resumenEl.textContent = r.dominante ? `Tu error más frecuente: ${TIPOS[r.dominante]}. ${r.consejo}` : r.consejo;
+  };
+  preguntasResultado.forEach((p, i) => {
+    if (res.detalle[i].estado !== 'fallo' || !PUEDE_GUARDAR) return;
+    const bloque = String(p.tema).includes(':') ? String(p.tema) : `${banco.id}:${p.tema}`;
+    const grupo = el('div', { clase: 'marcar-error', role: 'group', 'aria-label': `Por qué fallaste la pregunta ${i + 1}` });
+    grupo.append(el('span', { texto: '¿Por qué fallaste?' }));
+    for (const [tipo, texto] of Object.entries(TIPOS)) {
+      const boton = el('button', { type: 'button', 'aria-pressed': 'false', texto });
+      boton.addEventListener('click', () => {
+        let datos;
+        try { datos = registrarError(JSON.parse(localStorage.getItem(CLAVE_ERRORES) || 'null'), { bloque, tipo }); localStorage.setItem(CLAVE_ERRORES, JSON.stringify(datos)); }
+        catch { return; }
+        grupo.querySelectorAll('button').forEach(b => { b.disabled = true; b.setAttribute('aria-pressed', String(b === boton)); });
+        grupo.append(el('span', { texto: `Anotado: ${texto}` }));
+        pintarResumenErrores();
+      });
+      grupo.append(boton);
+    }
+    ol.children[i].append(grupo);
+  });
+  pintarResumenErrores();
+  resultado.append(resumenEl);
   if (actual.semilla !== undefined) {
     const a = ajustes(); const datos = { banco: banco.id, numero: preguntasResultado.length, minutos: a.minutos, temas: a.temas, opciones: a.opciones, penalizacion: penalActual, semilla: actual.semilla, nota: res.nota };
     const retar = el('button', { type: 'button', texto: 'Reta a un amigo' });
@@ -439,14 +475,17 @@ function pintarResultado(res, porTiempo, aMano = false, usado) {
   if (idsFallados.length) {
     const repetir = el('button', { type: 'button', texto: 'Repetir solo las falladas' });
     repetir.addEventListener('click', () => iniciarConPreguntas(idsFallados));
-    const flojos = temasFlojos(res);
-    const otroFlojos = el('button', { type: 'button', texto: 'Otro simulacro de mis temas flojos' });
-    otroFlojos.disabled = flojos.length === 0;
-    otroFlojos.addEventListener('click', () => iniciarTemasFlojos(flojos));
     const imprimir = el('button', { type: 'button', texto: 'Imprimir mis fallos' });
     imprimir.addEventListener('click', () => { document.body.classList.add('imprimir-fallos'); window.print(); setTimeout(() => document.body.classList.remove('imprimir-fallos'), 500); });
     const guardar = el('a', { href: codificarFalladas(idsFallados), texto: 'Guarda este enlace para repasar otro día' });
-    resultado.append(repetir, otroFlojos, imprimir, el('p', {}, guardar));
+    resultado.append(repetir, imprimir, el('p', {}, guardar));
+  }
+  const flojos = modoActual === 'nivel' ? niveles.filter(t => t.nivel !== 'domina').map(t => t.tema) : temasFlojos(res);
+  if (idsFallados.length || (modoActual === 'nivel' && flojos.length)) {
+    const otroFlojos = el('button', { type: 'button', texto: 'Otro simulacro de mis temas flojos' });
+    otroFlojos.disabled = flojos.length === 0;
+    otroFlojos.addEventListener('click', () => iniciarTemasFlojos(flojos));
+    resultado.append(otroFlojos);
   }
   const otro = el('button', { type: 'button', texto: 'Hacer otro simulacro' });
   otro.addEventListener('click', () => {
@@ -473,13 +512,14 @@ function iniciarTemasFlojos(temas) {
   iniciar(candidatas.slice(0, Math.min(Math.max(1, Number(inNumero.value)), candidatas.length)));
 }
 
-function iniciar(preguntas = null, a = ajustes()) {
-  if (preguntas) a = { ...a, minutos: Math.min(Math.max(Number(inMinutos.value) || 10, LIMITES.minMinutos), LIMITES.maxMinutos) };
+function iniciar(preguntas = null, a = ajustes(), modo = 'simulacro') {
+  if (preguntas && modo !== 'nivel') a = { ...a, minutos: Math.min(Math.max(Number(inMinutos.value) || 10, LIMITES.minMinutos), LIMITES.maxMinutos) };
   const semilla = preguntas ? undefined : (semillaActual ?? crypto.getRandomValues(new Uint32Array(1))[0] >>> 0);
   semillaActual = undefined;
   actual = preguntas ? { materia: banco.id, preguntas: preguntas.map(p => ({ ...p })), inicio: Date.now(), fin: Date.now() + a.minutos * 60_000 } : { ...crearSimulacro(banco, { ...a, rnd: azar(semilla) }), semilla };
   if (preguntas) retoPendiente = null;
   penalActual = a.penalizacion;
+  modoActual = modo;
   confirmarBlanco = false; congeladas = null; avisado = new Set(); marcadas = new Set();
   estadoRitmo = 'sin-datos';
   btnEntregar.textContent = 'Entregar y corregir';
@@ -515,7 +555,15 @@ form.addEventListener('submit', ev => {
 
 const imprimirSimulacro = el('button', { type: 'button', clase: 'sec', texto: 'Imprimir este simulacro en papel' });
 imprimirSimulacro.addEventListener('click', imprimirPapel);
-form.querySelector('[type="submit"]').after(imprimirSimulacro);
+const btnTestNivel = el('button', { type: 'button', clase: 'sec', texto: 'Test de nivel (2 por tema)' });
+btnTestNivel.addEventListener('click', () => {
+  if (!banco) { avisos.textContent = 'Cargando preguntas… Pulsa otra vez en un momento.'; return; }
+  const preguntas = testNivel(banco, { rnd: azar(crypto.getRandomValues(new Uint32Array(1))[0] >>> 0) });
+  if (!preguntas.length) { avisos.textContent = 'Este banco aún no tiene preguntas para evaluar el nivel.'; return; }
+  const minutos = Math.min(240, Math.max(5, Math.ceil(preguntas.length * 1.5)));
+  iniciar(preguntas, { ...ajustes(), minutos, penalizacion: 0 }, 'nivel');
+});
+form.querySelector('[type="submit"]').after(imprimirSimulacro, btnTestNivel);
 
 const idsHash = new URLSearchParams(location.hash.slice(1)).get('f');
 if (idsHash) {

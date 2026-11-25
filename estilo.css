@@ -120,6 +120,12 @@ button.sec { background: #fff; color: var(--azul); border: 1px solid var(--azul)
 .correccion .acierto { border-left-color: var(--verde); }
 .correccion .fallo { border-left-color: var(--rojo); }
 .correccion .blanco { border-left-color: var(--suave); }
+.nivel-empieza { color: #8b1e1e; }
+.nivel-medias { color: #704600; }
+.nivel-domina { color: #14532d; }
+.marcar-error { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: .6rem 0; }
+.marcar-error button { max-width: 100%; white-space: normal; }
+.marcar-error button[aria-pressed="true"] { outline: 2px solid currentColor; }
 .enunciado { font-weight: 600; }
 .solucion { font-weight: 600; color: var(--verde); }
 .explicacion { color: var(--suave); }
@@ -228,3 +234,5 @@ form.rubrica.js .sin-js { display: none; }
 .contador[data-estado="bien"] { color: #14532d; font-weight: 600; }
 .reloj-redactar { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .3rem 0; }
 @media print { .redactar button { display: none !important; } }
+.marcar-error button:disabled { opacity: .5; cursor: default; }
+.marcar-error button[aria-pressed="true"] { opacity: 1; outline: 3px solid var(--azul); outline-offset: 2px; }

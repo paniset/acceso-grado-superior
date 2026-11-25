@@ -2,10 +2,13 @@ import { MAX_NOTAS, sanearRepaso } from './repaso.mjs';
 import { CLAVE_DESARROLLO, sanearDesarrollo } from './desarrollo.mjs';
 import { validarPlan } from './plan-ui.mjs';
 import { sanearUltimo } from './continuar-validacion.mjs';
+import { CLAVE_ERRORES, sanearErrores } from './error-tipo.mjs';
+
+export { CLAVE_ERRORES };
 
 // Claves que se pueden importar, cada una con su comprobación de forma; el resto se descarta.
 const SANEAR = { 'ags-repaso-v1': sanearRepaso, [CLAVE_DESARROLLO]: sanearDesarrollo,
-  'ags-plan-v1': validarPlan, 'ags-ultimo-v1': sanearUltimo };
+  'ags-plan-v1': validarPlan, 'ags-ultimo-v1': sanearUltimo, [CLAVE_ERRORES]: sanearErrores };
 export function sanear(datos) {
   const salida = {};
   for (const [k, f] of Object.entries(SANEAR)) if (datos && datos[k] !== undefined) { const valor = f(datos[k]); if (valor !== null) salida[k] = valor; }

@@ -163,6 +163,25 @@ export function crearSimulacro(banco, { numero, minutos, temas = [], opciones = 
   };
 }
 
+// Diagnóstico breve: prioriza preguntas independientes para que una lectura compartida no monopolice el test.
+export function testNivel(banco, { porTema = 2, rnd = Math.random } = {}) {
+  const seleccion = [];
+  const ids = new Set();
+  for (const tema of banco.temas) {
+    if (seleccion.length >= LIMITES.maxPreguntas) break;
+    const candidatas = banco.preguntas.filter(p => p.tema === tema.id);
+    const independientes = barajar(candidatas.filter(p => !p.contexto), rnd);
+    const contextuales = barajar(candidatas.filter(p => p.contexto), rnd);
+    const cupo = Math.max(0, porTema);
+    const elegibles = [...independientes.slice(0, cupo), ...contextuales.slice(0, Math.max(0, cupo - independientes.length))];
+    for (const p of elegibles) {
+      if (seleccion.length >= LIMITES.maxPreguntas) break;
+      if (!ids.has(p.id)) { ids.add(p.id); seleccion.push(p); }
+    }
+  }
+  return agruparContextos(barajar(seleccion, rnd)).map(p => barajarOpciones(p, rnd));
+}
+
 // Junta las preguntas que comparten lectura (contexto) para mostrar el texto una sola vez.
 export function agruparContextos(preguntas) {
   const grupos = new Map();
@@ -234,4 +253,10 @@ export function porTemas(resultado) {
     temas.set(d.tema, t);
   }
   return [...temas.values()].sort((a, b) => a.aciertos / a.total - b.aciertos / b.total);
+}
+
+export function nivelPorTema(resultado) {
+  const orden = { empieza: 0, medias: 1, domina: 2 };
+  return porTemas(resultado).map(t => ({ ...t, nivel: t.aciertos === t.total ? 'domina' : t.aciertos / t.total >= 0.5 ? 'medias' : 'empieza' }))
+    .sort((a, b) => orden[a.nivel] - orden[b.nivel]);
 }
