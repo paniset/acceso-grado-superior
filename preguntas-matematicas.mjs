@@ -44,6 +44,18 @@ export default {
 {
 "id": "m10",
 "titulo": "Probabilidad: Laplace, sucesos compuestos y diagramas de árbol"
+},
+{
+"id": "m11",
+"titulo": "Derivadas: crecimiento, máximos, mínimos y recta tangente"
+},
+{
+"id": "m12",
+"titulo": "Matrices y determinantes"
+},
+{
+"id": "m13",
+"titulo": "Integrales: primitivas, regla de Barrow y áreas"
 }
 ],
 "preguntas": [
@@ -1166,6 +1178,342 @@ export default {
 ],
 "correcta": 0,
 "explicacion": "P(A ∪ B) = 0,5 + 0,4 − 0,2 = 0,7. 0,9 olvida restar la intersección."
+},
+{
+"id": "mat-081",
+"tema": "m11",
+"nivel": 1,
+"enunciado": "La derivada de f(x) = 3x² − 5x + 2 es:",
+"opciones": [
+"6x − 5",
+"3x − 5",
+"6x + 2",
+"6x² − 5"
+],
+"correcta": 0,
+"explicacion": "(3x²)' = 3·2x = 6x, (−5x)' = −5 y la derivada del 2, una constante, es 0: f'(x) = 6x − 5. Dejar el +2 o no bajar el exponente da las otras opciones."
+},
+{
+"id": "mat-082",
+"tema": "m11",
+"nivel": 1,
+"enunciado": "Si f(x) = x³, ¿cuánto vale f'(2)?",
+"opciones": [
+"4",
+"12",
+"8",
+"6"
+],
+"correcta": 1,
+"explicacion": "f'(x) = 3x², así que f'(2) = 3·4 = 12. El 8 es f(2), no la derivada, y el 6 sale de calcular 3·2 sin elevar al cuadrado."
+},
+{
+"id": "mat-083",
+"tema": "m11",
+"nivel": 2,
+"enunciado": "La recta tangente a f(x) = x² − 3x en el punto de abscisa x = 1 es:",
+"opciones": [
+"y = x − 3",
+"y = −2x",
+"y = −x − 1",
+"y = −x + 1"
+],
+"correcta": 2,
+"explicacion": "f(1) = 1 − 3 = −2 y f'(x) = 2x − 3, luego f'(1) = −1. Tangente: y = f(1) + f'(1)(x − 1) = −2 − (x − 1) = −x − 1. Comprobación: pasa por (1, −2)."
+},
+{
+"id": "mat-084",
+"tema": "m11",
+"nivel": 2,
+"enunciado": "¿En qué intervalos crece f(x) = x³ − 3x?",
+"opciones": [
+"(−1, 1)",
+"(0, +∞)",
+"(−∞, 0)",
+"(−∞, −1) ∪ (1, +∞)"
+],
+"correcta": 3,
+"explicacion": "f'(x) = 3x² − 3 = 3(x − 1)(x + 1), que se anula en −1 y 1. Es positiva fuera de ese intervalo (por ejemplo, f'(2) = 9) y negativa dentro (f'(0) = −3): crece en (−∞, −1) ∪ (1, +∞) y decrece en (−1, 1)."
+},
+{
+"id": "mat-085",
+"tema": "m11",
+"nivel": 2,
+"enunciado": "La función f(x) = 2x³ − 6x² tiene un mínimo relativo en:",
+"opciones": [
+"x = 2",
+"x = 0",
+"x = 3",
+"x = −2"
+],
+"correcta": 0,
+"explicacion": "f'(x) = 6x² − 12x = 6x(x − 2) se anula en 0 y 2. f''(x) = 12x − 12: f''(2) = 12 > 0, mínimo; f''(0) = −12 < 0, en x = 0 hay un máximo. En x = 3, f(3) = 0 es un corte con el eje, no un extremo."
+},
+{
+"id": "mat-086",
+"tema": "m11",
+"nivel": 3,
+"enunciado": "La derivada de f(x) = (x + 1) / (x − 1) es:",
+"opciones": [
+"1",
+"−2 / (x − 1)²",
+"2 / (x − 1)²",
+"−2 / (x − 1)"
+],
+"correcta": 1,
+"explicacion": "Regla del cociente: [1·(x − 1) − (x + 1)·1] / (x − 1)² = (x − 1 − x − 1) / (x − 1)² = −2 / (x − 1)². El 1 sale de derivar numerador y denominador por separado (1/1), que no es la regla."
+},
+{
+"id": "mat-087",
+"tema": "m11",
+"nivel": 3,
+"enunciado": "Con 40 m de valla se quiere cercar un terreno rectangular con la mayor área posible. Sus lados deben medir:",
+"opciones": [
+"12 m y 8 m",
+"20 m y 20 m",
+"10 m y 10 m",
+"15 m y 5 m"
+],
+"correcta": 2,
+"explicacion": "Si un lado es x, el otro es 20 − x (el perímetro es 40). Área A(x) = x(20 − x) = 20x − x²; A'(x) = 20 − 2x = 0 → x = 10. Es un cuadrado de 100 m²; 15 × 5 da 75 m² y 12 × 8, 96 m². Con lados de 20 m harían falta 80 m de valla."
+},
+{
+"id": "mat-088",
+"tema": "m11",
+"nivel": 2,
+"enunciado": "Si f'(3) = 0 y f''(3) > 0, en x = 3 la función tiene:",
+"opciones": [
+"un máximo relativo",
+"un punto de inflexión",
+"una asíntota vertical",
+"un mínimo relativo"
+],
+"correcta": 3,
+"explicacion": "f'(3) = 0 indica tangente horizontal, y f''(3) > 0 que la gráfica es cóncava hacia arriba (forma de U): es un mínimo. Con f''(3) < 0 sería un máximo; para un punto de inflexión haría falta f''(3) = 0."
+},
+{
+"id": "mat-089",
+"tema": "m12",
+"nivel": 1,
+"enunciado": "Una matriz con 2 filas y 3 columnas tiene dimensión:",
+"opciones": [
+"2 × 3",
+"3 × 2",
+"6 × 1",
+"5 × 1"
+],
+"correcta": 0,
+"explicacion": "La dimensión se da como filas × columnas: 2 × 3. 3 × 2 sería al revés (3 filas y 2 columnas). Tiene 6 elementos, pero la dimensión no es «6»."
+},
+{
+"id": "mat-090",
+"tema": "m12",
+"nivel": 1,
+"enunciado": "Si A = (1 2; 3 4) y B = (0 −1; 2 5), escritas por filas, A + B es:",
+"opciones": [
+"(1 1; 5 1)",
+"(1 1; 5 9)",
+"(1 3; 1 −1)",
+"(0 −2; 6 20)"
+],
+"correcta": 1,
+"explicacion": "Se suma elemento a elemento: 1 + 0 = 1, 2 + (−1) = 1, 3 + 2 = 5 y 4 + 5 = 9. (1 3; 1 −1) es A − B y (0 −2; 6 20), multiplicar elemento a elemento."
+},
+{
+"id": "mat-091",
+"tema": "m12",
+"nivel": 2,
+"enunciado": "Con A = (1 2; 3 4) y B = (2 0; 1 3), escritas por filas, el producto A·B es:",
+"opciones": [
+"(2 0; 3 12)",
+"(3 2; 4 7)",
+"(4 6; 10 12)",
+"(2 4; 10 14)"
+],
+"correcta": 2,
+"explicacion": "Fila por columna: 1·2 + 2·1 = 4, 1·0 + 2·3 = 6, 3·2 + 4·1 = 10 y 3·0 + 4·3 = 12. (2 4; 10 14) es B·A: el producto no es conmutativo. (2 0; 3 12) multiplica elemento a elemento y (3 2; 4 7) es la suma."
+},
+{
+"id": "mat-092",
+"tema": "m12",
+"nivel": 1,
+"enunciado": "El determinante de la matriz (3 5; 2 4), escrita por filas, vale:",
+"opciones": [
+"22",
+"−2",
+"14",
+"2"
+],
+"correcta": 3,
+"explicacion": "a·d − b·c = 3·4 − 5·2 = 12 − 10 = 2. 22 sale de sumar los productos y −2, de restarlos al revés."
+},
+{
+"id": "mat-093",
+"tema": "m12",
+"nivel": 2,
+"enunciado": "El determinante de la matriz (1 2 0; 3 1 2; 0 1 1), escrita por filas, vale:",
+"opciones": [
+"−7",
+"7",
+"5",
+"1"
+],
+"correcta": 0,
+"explicacion": "Desarrollando por la primera fila: 1·(1·1 − 2·1) − 2·(3·1 − 2·0) + 0 = 1·(−1) − 2·3 = −7. Olvidar el signo menos del segundo término da −1 + 6 = 5, y cambiar el signo del resultado, 7."
+},
+{
+"id": "mat-094",
+"tema": "m12",
+"nivel": 2,
+"enunciado": "La inversa de A = (2 1; 5 3), escrita por filas, es:",
+"opciones": [
+"(2 −1; −5 3)",
+"(3 −1; −5 2)",
+"(−3 1; 5 −2)",
+"(3 5; 1 2)"
+],
+"correcta": 1,
+"explicacion": "det A = 2·3 − 1·5 = 1. Inversa 2 × 2: se cambian de sitio los de la diagonal principal y de signo los otros, y se divide entre el determinante: (3 −1; −5 2). Comprobación: A·A⁻¹ = (6 − 5, −2 + 2; 15 − 15, −5 + 6) = (1 0; 0 1)."
+},
+{
+"id": "mat-095",
+"tema": "m12",
+"nivel": 2,
+"enunciado": "¿Para qué valor de k no tiene inversa la matriz (k 2; 3 6), escrita por filas?",
+"opciones": [
+"k = 4",
+"k = −1",
+"k = 1",
+"k = 0"
+],
+"correcta": 2,
+"explicacion": "No tiene inversa cuando su determinante vale 0: 6k − 2·3 = 6k − 6 = 0 → k = 1. Con k = 0 el determinante es −6, distinto de 0, así que sí tendría inversa."
+},
+{
+"id": "mat-096",
+"tema": "m12",
+"nivel": 3,
+"enunciado": "El rango de la matriz (1 2 3; 2 4 6; 1 0 1), escrita por filas, es:",
+"opciones": [
+"3",
+"1",
+"0",
+"2"
+],
+"correcta": 3,
+"explicacion": "La segunda fila es el doble de la primera, así que el determinante es 0 y el rango no es 3. La primera y la tercera no son proporcionales (el menor 1·0 − 2·1 = −2 no es 0): rango 2."
+},
+{
+"id": "mat-097",
+"tema": "m13",
+"nivel": 1,
+"enunciado": "∫ 3x² dx es igual a:",
+"opciones": [
+"x³ + C",
+"6x + C",
+"3x³ + C",
+"x³/3 + C"
+],
+"correcta": 0,
+"explicacion": "Se sube el exponente y se divide entre el nuevo: 3·x³/3 = x³, más la constante C. Comprobación: (x³)' = 3x². 6x + C es la derivada, no la primitiva."
+},
+{
+"id": "mat-098",
+"tema": "m13",
+"nivel": 1,
+"enunciado": "Una primitiva de f(x) = 4x + 1 es:",
+"opciones": [
+"F(x) = 2x²",
+"F(x) = 2x² + x",
+"F(x) = 4x² + x",
+"F(x) = 4"
+],
+"correcta": 1,
+"explicacion": "∫ 4x dx = 4·x²/2 = 2x² y ∫ 1 dx = x. Comprobación: (2x² + x)' = 4x + 1. 2x² se olvida de la primitiva del 1, y 4 es la derivada."
+},
+{
+"id": "mat-099",
+"tema": "m13",
+"nivel": 2,
+"enunciado": "∫₀² x² dx vale:",
+"opciones": [
+"8",
+"2",
+"8/3",
+"4"
+],
+"correcta": 2,
+"explicacion": "Primitiva x³/3; Barrow: 8/3 − 0 = 8/3 ≈ 2,67. El 4 es el valor de x² en x = 2 y el 8, x³ sin dividir entre 3."
+},
+{
+"id": "mat-100",
+"tema": "m13",
+"nivel": 2,
+"enunciado": "∫₁³ (2x − 1) dx vale:",
+"opciones": [
+"8",
+"4",
+"5",
+"6"
+],
+"correcta": 3,
+"explicacion": "Primitiva x² − x; Barrow: (9 − 3) − (1 − 1) = 6. Olvidar la primitiva del −1 da 9 − 1 = 8."
+},
+{
+"id": "mat-101",
+"tema": "m13",
+"nivel": 1,
+"enunciado": "Si F es una primitiva de f, la integral definida de f entre a y b es:",
+"opciones": [
+"F(b) − F(a)",
+"F(a) − F(b)",
+"(b − a)·f(b)",
+"F(b) + F(a)"
+],
+"correcta": 0,
+"explicacion": "Es la regla de Barrow: se evalúa la primitiva en el límite de arriba y se le resta su valor en el de abajo. (b − a)·f(b) sería el área de un rectángulo, que solo coincide si f es constante."
+},
+{
+"id": "mat-102",
+"tema": "m13",
+"nivel": 2,
+"enunciado": "El área encerrada entre f(x) = x² − 4 y el eje X es:",
+"opciones": [
+"8",
+"32/3",
+"−32/3",
+"16/3"
+],
+"correcta": 1,
+"explicacion": "Corta al eje en x = −2 y x = 2 y entre ellos queda por debajo. ∫ de −2 a 2 de (x² − 4) dx = [x³/3 − 4x] = (8/3 − 8) − (−8/3 + 8) = −32/3. Un área no es negativa: 32/3 ≈ 10,67 unidades cuadradas."
+},
+{
+"id": "mat-103",
+"tema": "m13",
+"nivel": 3,
+"enunciado": "El área encerrada entre las gráficas de y = x e y = x² es:",
+"opciones": [
+"1/3",
+"5/6",
+"1/6",
+"1/2"
+],
+"correcta": 2,
+"explicacion": "Se cortan donde x = x², en x = 0 y x = 1; entre ellos y = x va por encima. Área = ∫₀¹ (x − x²) dx = 1/2 − 1/3 = 1/6. 1/2 y 1/3 son las áreas bajo cada gráfica por separado."
+},
+{
+"id": "mat-104",
+"tema": "m13",
+"nivel": 3,
+"enunciado": "El área entre f(x) = x³ y el eje X en el intervalo [−1, 1] es:",
+"opciones": [
+"0",
+"1/4",
+"2",
+"1/2"
+],
+"correcta": 3,
+"explicacion": "∫ de −1 a 1 de x³ dx = 0, porque el tramo negativo (de −1 a 0) compensa el positivo. Hay que separar: cada tramo mide 1/4, así que el área es 1/4 + 1/4 = 1/2."
 }
 ]
 };

@@ -214,7 +214,7 @@ async function aplicarPreset(boton) {
   const temas = d.temas ? d.temas.split(',') : null;
   cajaTemas.querySelectorAll('input').forEach(c => { c.checked = !temas || temas.includes(c.value); });
   const recorte = numero < Number(d.numero) ? ` (el examen tiene ${d.numero}; el banco solo da ${numero})` : '';
-  const extra = (temas ? ' Solo los temas del ejercicio real.' : '') + (d.opciones === '3' ? ' Tres opciones por pregunta.' : '');
+  const extra = (temas ? ` ${d.avisoTemas || 'Solo los temas del ejercicio real.'}` : '') + (d.opciones === '3' ? ' Tres opciones por pregunta.' : '');
   presetInfo.textContent = `Ajustado: ${boton.textContent}, ${numero} preguntas${recorte}, ${inMinutos.value} minutos. ${textoPenalizacion(Number(selPenal?.value || 0))}${extra} Pulsa «Empezar simulacro».`;
 }
 
