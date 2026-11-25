@@ -21,7 +21,7 @@ export function exportar(lector = clave => localStorage.getItem(clave)) {
   if (lector && typeof lector.getItem === 'function' && typeof lector.key === 'function') for (let i = 0; i < lector.length; i++) claves.push(lector.key(i));
   else if (typeof lector === 'function') return { web: 'acceso-grado-superior', version: 1, fecha: new Date().toISOString(), datos };
   else if (lector && typeof lector !== 'function') claves.push(...Object.keys(lector));
-  for (const clave of claves || []) if (clave?.startsWith('ags-')) {
+  for (const clave of claves || []) if (clave?.startsWith('ags-') && clave !== 'ags-copia-v1') {
     try { const valor = lector.getItem ? JSON.parse(lector.getItem(clave)) : lector[clave]; if (valor !== undefined && valor !== null) datos[clave] = valor; } catch { /* ignora JSON roto */ }
   }
   return { web: 'acceso-grado-superior', version: 1, fecha: new Date().toISOString(), datos };

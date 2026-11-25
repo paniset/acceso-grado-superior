@@ -1,6 +1,7 @@
 import { leerEstado, hoyISO, racha } from './repaso.mjs';
 import { sanearDesarrollo } from './desarrollo.mjs';
 import { rutaLocal } from './continuar-validacion.mjs';
+import { necesitaAvisoCopia, TEXTO_AVISO } from './copia.mjs';
 
 export function contarRepaso(estado, hoy) {
   return Object.values(estado?.preguntas || {}).filter(p => p && typeof p.proxima === 'string' && p.proxima <= hoy).length;
@@ -55,6 +56,7 @@ export function iniciarContinuar({ document: doc = document, storage = almacen()
     const r = textoRacha(racha(fechas, hoy));
     if (r) parrafo(r);
   } catch {}
+  if (necesitaAvisoCopia(storage)) parrafo(`${TEXTO_AVISO} `, enlace('./simulacro-prueba-acceso-grado-superior#copia', 'Descargar copia'));
   caja.hidden = !filas.length;
   caja.replaceChildren(...filas);
 }

@@ -81,7 +81,7 @@ legend { font-weight: 700; padding: 0 .3rem; }
 .opcion { display: block; font-weight: 400; padding: .3rem .2rem; border-radius: 6px; cursor: pointer; }
 .opcion:hover { background: var(--azul-claro); }
 .mapa { display: flex; flex-wrap: wrap; gap: .35rem; margin: .7rem 0 .2rem; }
-.mapa button { min-width: 2.4rem; min-height: 2.4rem; padding: .25rem; margin: 0; }
+.mapa button { min-width: 44px; min-height: 44px; padding: .25rem; margin: 0; }
 .mapa-respondida { background: #14532d; color: #fff; }
 .mapa-blanco { background: #fff; color: #333; border: 2px solid #555; }
 .mapa-marcada { background: #fff; color: #6b3a00; border: 3px solid #6b3a00; }
@@ -236,3 +236,12 @@ form.rubrica.js .sin-js { display: none; }
 @media print { .redactar button { display: none !important; } }
 .marcar-error button:disabled { opacity: .5; cursor: default; }
 .marcar-error button[aria-pressed="true"] { opacity: 1; outline: 3px solid var(--azul); outline-offset: 2px; }
+
+/* Objetivos táctiles ≥44 px (portado de Aula PAU 24f8b7b, aa67d78 y 650c4e6). Los enlaces dentro de un párrafo quedan exentos (WCAG 2.5.8). */
+button, summary, select, input[type="text"], input[type="number"], input[type="date"] { min-height: 44px; }
+summary { padding-block: .5rem; }
+td a, th a { display: inline-block; min-width: 44px; min-height: 44px; padding: .7rem .4rem; box-sizing: border-box; }
+footer a, .solo-enlace > a { display: inline-block; padding-block: .75rem; }
+nav a, .marca { display: inline-flex; align-items: center; min-height: 44px; }
+main li > a { display: inline-block; padding-block: .7rem; }
+:where(label:has(> input[type="checkbox"], > input[type="radio"])) { min-height: 44px; display: inline-flex; align-items: center; gap: .4rem; }

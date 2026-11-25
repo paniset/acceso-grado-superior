@@ -5,6 +5,7 @@ import { CLAVE, leerEstado, registrar, anotarNota, pendientes, notasDe, enRepaso
 import { exportar, fusionar, codificar as codificarProgreso, leer as leerProgreso, leerReto } from './progreso.mjs';
 import { azar } from './simulacro.mjs';
 import { CLAVE_ERRORES, TIPOS, sanearErrores, registrarError, resumenErrores } from './error-tipo.mjs';
+import { anotarCopia, necesitaAvisoCopia, pedirPersistencia, yaPersistente, TEXTO_AVISO } from './copia.mjs';
 
 const raiz = document.getElementById('simulacro');
 const $ = sel => raiz.querySelector(sel);
@@ -55,6 +56,7 @@ function aplicarProgreso(paquete) {
 
 // Repaso entre días. Si el navegador no deja guardar (modo privado estricto), la caja no aparece.
 const cajaRepaso = document.createElement('div');
+let irACopia = false;
 cajaRepaso.className = 'repaso-hoy';
 cajaRepaso.setAttribute('aria-live', 'polite');
 form.before(cajaRepaso);
@@ -189,6 +191,8 @@ async function elegirMateria() {
     banco = b;
     pintarTemas();
     pintarRepaso();
+    // La copia se pinta tras cargar el banco: el ancla #copia de la portada se resuelve aquí, una sola vez.
+    if (location.hash === '#copia' && !irACopia) { irACopia = true; document.getElementById('copia')?.scrollIntoView(); }
     inNumero.max = String(Math.min(LIMITES.maxPreguntas, banco.preguntas.length));
   } catch {
     if (selMateria && selMateria.value !== pedido) return;
@@ -259,13 +263,17 @@ function pintarRepaso() {
   if (notas.length) cajaRepaso.append(el('p', { clase: 'mini', texto: `Tus últimas notas aquí: ${notas.map(n => n.nota.toLocaleString('es-ES')).join(' · ')}` }));
   cajaRepaso.append(cajaVeredicto(estado));
   const descargar = el('button', { type: 'button', clase: 'sec', texto: 'Descargar copia de mi progreso' });
-  descargar.addEventListener('click', () => { const blob = new Blob([JSON.stringify(exportar(localStorage), null, 2)], { type: 'application/json' }); const a = el('a', { href: URL.createObjectURL(blob), download: 'copia-progreso-acceso-grado-superior.json' }); a.click(); URL.revokeObjectURL(a.href); });
+  descargar.addEventListener('click', () => { const blob = new Blob([JSON.stringify(exportar(localStorage), null, 2)], { type: 'application/json' }); const a = el('a', { href: URL.createObjectURL(blob), download: 'copia-progreso-acceso-grado-superior.json' }); a.click(); URL.revokeObjectURL(a.href); anotarCopia(localStorage); avisoCopia.hidden = true; pedirPersistencia().then(p => { if (p) persistencia.textContent = 'El navegador ha marcado tus datos como persistentes: no los borrará para hacer sitio.'; }); });
   const archivo = el('input', { type: 'file', accept: 'application/json,.json', 'aria-label': 'Seleccionar copia de progreso' }); archivo.hidden = true;
   const cargar = el('button', { type: 'button', clase: 'sec', texto: 'Cargar copia' }); cargar.addEventListener('click', () => archivo.click());
   archivo.addEventListener('change', async () => { try { const p = JSON.parse(await archivo.files[0].text()); anuncio.textContent = p?.web === 'acceso-grado-superior' && p.version === 1 && aplicarProgreso(p) ? 'Copia fusionada con el progreso de este dispositivo.' : 'La copia no es válida para esta web.'; } catch { anuncio.textContent = 'No se pudo leer la copia.'; } });
   const compartir = el('button', { type: 'button', clase: 'sec', texto: 'Copiar enlace para otro dispositivo' });
   compartir.addEventListener('click', async () => { const u = new URL(location.href); u.hash = `progreso=${codificarProgreso(exportar(localStorage))}`; try { await navigator.clipboard.writeText(u.href); anuncio.textContent = 'Enlace copiado.'; } catch { anuncio.textContent = u.href; } });
-  cajaRepaso.append(el('p', {}, descargar, cargar, compartir, archivo));
+  const avisoCopia = el('p', { clase: 'aviso', role: 'note', texto: TEXTO_AVISO + ' Descárgala con el botón de abajo.' });
+  avisoCopia.hidden = !necesitaAvisoCopia(localStorage);
+  const persistencia = el('p', { clase: 'mini' });
+  yaPersistente().then(p => { if (p === false) persistencia.textContent = 'El navegador puede borrar estos datos si necesita espacio: descarga una copia de vez en cuando.'; else if (p) persistencia.textContent = 'El navegador ha marcado tus datos como persistentes.'; });
+  cajaRepaso.append(avisoCopia, el('p', { id: 'copia' }, descargar, cargar, compartir, archivo), persistencia);
   const borrar = el('button', { type: 'button', clase: 'sec', texto: 'Borrar mi progreso de este navegador' });
   borrar.addEventListener('click', () => { try { localStorage.removeItem(CLAVE); localStorage.removeItem(CLAVE_ERRORES); } catch { /* nada */ } pintarRepaso(); anuncio.textContent = 'Progreso borrado.'; });
   cajaRepaso.append(el('p', { clase: 'mini' }, 'Se guarda solo en este navegador; no se envía a ningún sitio. ', borrar));
