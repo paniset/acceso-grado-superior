@@ -1,4 +1,4 @@
-import { planificar } from './plan.mjs';
+import { porSemanas, planificar } from './plan.mjs';
 import { validarPlan } from './plan-ui.mjs';
 import { codificar } from './progreso.mjs';
 import { crearIcs } from './ics.mjs';
@@ -10,6 +10,17 @@ const CLAVE = 'ags-plan-v1';
 const SIMULACRO = 'simulacro-prueba-acceso-grado-superior';
 const hoy = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
 const fechaLarga = s => new Date(`${s}T12:00:00Z`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+function pintarSemanas(nodo, dias) {
+  const semanas = porSemanas(dias);
+  if (!semanas.length) { pintarDias(nodo, dias); return; }
+  nodo.replaceChildren(...semanas.map((s, i) => {
+    const det = document.createElement('details'); det.className = 'semana-plan'; det.open = i === 0;
+    const res = document.createElement('summary'); res.textContent = `Semana del ${fechaLarga(s.lunes)} (${s.dias.length} ${s.dias.length > 1 ? 'días' : 'día'})`;
+    const cuerpo = document.createElement('div'); det.append(res, cuerpo); pintarDias(cuerpo, s.dias);
+    return det;
+  }));
+}
+addEventListener('beforeprint', () => document.querySelectorAll('details.semana-plan').forEach(d => { d.open = true; }));
 const MESES = { enero: 1, febrero: 2, marzo: 3, abril: 4, mayo: 5, junio: 6, julio: 7, agosto: 8, septiembre: 9, octubre: 10, noviembre: 11, diciembre: 12 };
 let resultado = null;
 
@@ -60,7 +71,7 @@ function render() {
   const fin = domingo.toISOString().slice(0, 10);
   pintarDias($('hoy-plan').querySelector('div'), resultado.dias.filter(d => d.fecha === hoyIso));
   pintarDias($('semana-plan').querySelector('div'), resultado.dias.filter(d => d.fecha >= hoyIso && d.fecha <= fin));
-  pintarDias($('plan-completo').querySelector('div'), resultado.dias);
+  pintarSemanas($('plan-completo').querySelector('div'), resultado.dias);
 }
 
 function generar() {

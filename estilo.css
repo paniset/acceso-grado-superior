@@ -258,3 +258,8 @@ main li > a { display: inline-block; padding-block: .7rem; }
 .a11y-contraste .marcar, .a11y-contraste .tachar, .a11y-contraste .redactar textarea, .a11y-contraste input, .a11y-contraste select { border: 2px solid #000; color: #000; }
 .a11y-contraste button.sec { border-width: 2px; }
 .a11y-contraste .mini, .a11y-contraste .lead, .a11y-contraste .pie { color: #000; }
+.semana-plan > summary { min-height: 44px; padding: 10px 0; font-weight: 600; cursor: pointer; }
+/* Los desplegables con nombres largos no ensanchan la página en móvil. */
+label, fieldset { min-width: 0; max-width: 100%; }
+select, input, textarea { max-width: 100%; min-width: 0; }
+label > select { width: 100%; }

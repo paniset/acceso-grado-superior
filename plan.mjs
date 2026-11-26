@@ -1,3 +1,16 @@
+// Agrupa los días del plan por semana (de lunes a domingo).
+export function porSemanas(dias) {
+  const semanas = new Map();
+  for (const d of dias) {
+    const f = new Date(`${d.fecha}T12:00:00Z`);
+    f.setUTCDate(f.getUTCDate() - (f.getUTCDay() + 6) % 7);
+    const lunes = f.toISOString().slice(0, 10);
+    if (!semanas.has(lunes)) semanas.set(lunes, []);
+    semanas.get(lunes).push(d);
+  }
+  return [...semanas].map(([lunes, lista]) => ({ lunes, dias: lista }));
+}
+
 const parse = s => { const d = new Date(`${s}T12:00:00Z`); return typeof s === 'string' && !Number.isNaN(d.valueOf()) ? d : null; };
 const iso = d => d.toISOString().slice(0, 10);
 // Lunes = 0 … domingo = 6.
